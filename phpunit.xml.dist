@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit bootstrap="tests/bootstrap.php"
+         colors="true"
+         strict="true"
+         verbose="true">
+
+    <testsuite name="all-tests">>
+        <directory>tests/APIManager</directory>
+    </testsuite>
+
+    <testsuite name="travis-ci">>
+        <directory>tests/APIManager</directory>
+    </testsuite>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./lib</directory>
+            <exclude>
+                <directory suffix=".php">./lib/APIManager/Interfaces</directory>
+                <directory suffix=".php">./lib/APIManager/Formats/Core</directory>
+                <directory suffix=".php">./lib/APIManager/Responders/Core</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-clover" target="build/logs/clover.xml"/>
+    </logging>
+</phpunit>
