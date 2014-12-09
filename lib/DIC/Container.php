@@ -71,6 +71,7 @@ class Container implements ContainerInterface
     /**
      * @param $service string
      * @param $params array
+     * @return $this object
      */
     public function addLazy($service, $params = null)
     {
@@ -80,12 +81,14 @@ class Container implements ContainerInterface
 
         if (is_string($service)) {
             $this->services[$service] =
-                function() use ($service, $params)
+                function() use ($service)
                 {
                     $class = '\\DIC\\Mocks\\'.$service;
-                    return new $class($params[0]);
+                    return new $class($this->params[$service]['service']);
                 };
         }
+
+        return $this;
     }
 
     /**
@@ -95,7 +98,6 @@ class Container implements ContainerInterface
     public function &get($service)
     {
         if ($this->services[$service] instanceof \Closure) {
-            var_dump($this->getServiceParams('EchoService'));
             $this->services[$service] = call_user_func($this->services[$service], $this->params[$service]);
         }
         return $this->services[$service];

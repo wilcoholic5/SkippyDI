@@ -15,7 +15,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->di = new Container();
     }
 
-    public function testSetParams()
+    public function testSetParam()
     {
         $this->di->setParam('Echo', 'text', 'Some text here.');
         $params = $this->di->getParams();
@@ -41,10 +41,20 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testSetLazy()
     {
-        $this->di->addLazy('EchoService');
-        $this->di->setParam('EchoService', 'service', 'This is my service!');
-        var_dump($this->di->getServices());
+        $this->di->setParam('EchoServiceConstruct', 'service', 'This is my service!');
+        $this->di->addLazy('EchoServiceConstruct');
+        $services = $this->di->getServices();
 
-        var_dump($this->di->get('EchoService'));
+        // Test that only a closure is made of the object until we use 'get' on it
+        $this->assertInstanceOf(
+            'Closure',
+            $services['EchoServiceConstruct']
+        );
+
+        // Test that the closure gets converted to the actual object once 'get' is called
+        $this->assertInstanceOf(
+            'DIC\\Mocks\\EchoServiceConstruct',
+            $this->di->get('EchoServiceConstruct')
+        );
     }
 }
