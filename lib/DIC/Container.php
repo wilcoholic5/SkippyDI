@@ -21,7 +21,9 @@ class Container implements ContainerInterface
      */
     public function setParam($service, $var, $val)
     {
-        $this->params[$service][$var] = $val;
+        if (!isset($this->params[$service][$var])) {
+            $this->params[$service][$var] = $val;
+        }
     }
 
     /**
@@ -33,9 +35,7 @@ class Container implements ContainerInterface
     {
         if (is_array($params)) {
             foreach ($params as $key => $val) {
-                if (!isset($this->params[$service][$key])) {
-                    $this->params[$service][$key] = $val;
-                }
+                $this->setParam($service, $key, $val);
             }
         }
     }
@@ -74,6 +74,7 @@ class Container implements ContainerInterface
         if (!is_object($val)) {
             print 'Something is not an object';
         }
+
         $this->services[$service] = $val;
     }
 
@@ -84,20 +85,40 @@ class Container implements ContainerInterface
      */
     public function addLazy($service, $params = null)
     {
+        if (!is_string($service)) {
+            throw new \InvalidArgumentException();
+        }
+
         if ($params) {
             $this->setParams($service, $params);
         }
 
-        if (is_string($service)) {
-            $this->services[$service] =
-                function() use ($service)
-                {
-                    $class = '\\DIC\\Mocks\\'.$service;
-                    return new $class($this->params[$service]['service']);
-                };
+        if (!$params) {
+            if (!$this->getServiceParams($service)) {
+                $params = $this->getServiceParams($service);
+            }
         }
+        $this->services[$service] = $this->newLazy($service, $params);
 
-        return $this;
+        return $this->services[$service];
+    }
+
+    public function newLazy($service, $params = null)
+    {
+        return function() use ($service, $params)
+        {
+            if ($params) {
+                foreach ($params as $param=>$val) {
+                    if ($val instanceof \Closure) {
+                        $val = new $param($this->params[$service]);
+                    }
+                    $this->setParam($service, $param, $val);
+                }
+            }
+
+            $class = '\\DIC\\Mocks\\'.$service;
+            return new $class($this->params[$service]);
+        };
     }
 
     /**
@@ -106,12 +127,23 @@ class Container implements ContainerInterface
      */
     public function &get($service)
     {
+        //$this->initDependencies($service, $this->getServiceParams($service));
         if ($this->services[$service] instanceof \Closure) {
             $this->services[$service] = call_user_func($this->services[$service], $this->params[$service]);
         }
 
         return $this->services[$service];
     }
+
+//    public function initDependencies($service, $params)
+//    {
+//        foreach ($params as $param) {
+//            $val = &$this->services[$service][$param];
+//            if ($val instanceof \Closure) {
+//                $val = call_user_func($val, $this->getServiceParams($param));
+//            }
+//        }
+//    }
 
     public function getServices()
     {
