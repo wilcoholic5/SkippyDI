@@ -39,6 +39,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testSetParams()
+    {
+        $this->di->setParams('EchoServiceContainer', array('test'=>'val1'));
+
+        $this->assertEquals(
+            array('test'=>'val1'),
+            $this->di->getServiceParams('EchoServiceContainer')
+        );
+    }
+
     public function testSetLazy()
     {
         $this->di->setParam('EchoServiceConstruct', 'service', 'This is my service!');

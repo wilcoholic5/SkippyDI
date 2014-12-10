@@ -24,11 +24,18 @@ class Container implements ContainerInterface
         $this->params[$service][$var] = $val;
     }
 
+    /**
+     * @param string $service
+     * @param array $params
+     * @return mixed|void
+     */
     public function setParams($service, $params)
     {
         if (is_array($params)) {
-            foreach ($params as $param) {
-                // TODO: Stuff
+            foreach ($params as $key => $val) {
+                if (!isset($this->params[$service][$key])) {
+                    $this->params[$service][$key] = $val;
+                }
             }
         }
     }
@@ -49,8 +56,10 @@ class Container implements ContainerInterface
      */
     public function getServiceParams($service)
     {
-        if (array_key_exists($service, $this->params)) {
-            return $this->params[$service];
+        if ($this->params[$service]) {
+            if (array_key_exists($service, $this->params)) {
+                return $this->params[$service];
+            }
         }
     }
 
@@ -100,6 +109,7 @@ class Container implements ContainerInterface
         if ($this->services[$service] instanceof \Closure) {
             $this->services[$service] = call_user_func($this->services[$service], $this->params[$service]);
         }
+
         return $this->services[$service];
     }
 
