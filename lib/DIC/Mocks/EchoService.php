@@ -5,12 +5,12 @@ class EchoService extends Service{
     protected $val1;
     protected $val2;
 
-    public function __construct($val1 = null, $val2 = null)
+    public function __construct()
     {
-        $this->val1 = $val1;
-        $this->val2 = $val2;
-        if ($val1 instanceof Blank) {
-            die('we got the correct instance.');
+        if (func_get_args()) {
+            $args = func_get_args();
+            $arr = $args[0];
+            $this->val1 = $arr['Blank'];
         }
     }
 

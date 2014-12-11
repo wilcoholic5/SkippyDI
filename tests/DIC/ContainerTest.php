@@ -16,13 +16,45 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->di = new Container();
     }
 
+    public function testDependencies()
+    {
+        $this->di->addLazy('EchoService', array('Blank'=>$this->di->newLazy('Blank')));
+        $this->assertInstanceOf(
+            'Closure',
+            $this->di->getServiceParams('EchoService')['Blank']
+        );
+        /**
+         * @var EchoService
+         */
+        $echo = $this->di->get('EchoService');
+        /**
+         * @var EchoService
+         */
+        $this->assertInstanceOf(
+            '\\DIC\\Mocks\\EchoService',
+            $echo
+        );
+
+        $this->assertInstanceOf(
+            '\\DIC\\Mocks\\Blank',
+            $echo->getVal1()
+            );
+    }
+
     public function testSetParam()
     {
         $this->di->setParam('EchoService', 'text', 'Some text here.');
-        $params = $this->di->getParams();
+
         $this->assertEquals(
             'Some text here.',
-            $params['EchoService']['text']
+            $this->di->getParams()['EchoService']['text']
+        );
+
+        $this->di->setParam('EchoService', 'text', 'Some other text here.');
+
+        $this->assertEquals(
+            'Some other text here.',
+            $this->di->getParams()['EchoService']['text']
         );
     }
 
@@ -56,6 +88,15 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testAdd()
+    {
+        $this->di->add('EchoService', new EchoService());
+        $this->assertInstanceOf(
+            '\\DIC\\Mocks\\EchoService',
+            $this->di->get('EchoService')
+        );
+    }
+
     public function testSetLazy()
     {
         $this->di->setParam('EchoServiceConstruct', 'service', 'This is my service!');
@@ -74,21 +115,4 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
             $this->di->get('EchoServiceConstruct')
         );
     }
-
-//    public function testDependencies()
-//    {
-//        $this->di->addLazy('EchoService', array('Blank'=>$this->di->newLazy('Blank')));
-//        $this->assertInstanceOf(
-//            'Closure',
-//            $this->di->getServiceParams('EchoService')['Blank']
-//        );
-//
-//        /**
-//         * @var EchoService
-//         */
-//        $this->assertInstanceOf(
-//            '\\DIC\\Mocks\\EchoService',
-//            $echo = $this->di->get('EchoService')
-//        );
-//    }
 }
