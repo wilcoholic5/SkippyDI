@@ -18,7 +18,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testDependencies()
     {
-        $this->di->addLazy('EchoService', array('Blank'=>$this->di->newLazy('Blank')));
+        $this->di->addLazy('EchoService', array('Blank' => $this->di->newLazy('Blank'), 'BlankTwo' => $this->di->newLazy('BlankTwo'), 'name' => 'Echo'));
         $this->assertInstanceOf(
             'Closure',
             $this->di->getServiceParams('EchoService')['Blank']
@@ -37,8 +37,18 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(
             '\\DIC\\Mocks\\Blank',
-            $echo->getVal1()
+            $echo->getBlank()
             );
+
+        $this->assertInstanceOf(
+            '\\DIC\\Mocks\\BlankTwo',
+            $echo->getBlankTwo()
+        );
+
+        $this->assertEquals(
+            'Echo',
+            $echo->getName()
+        );
     }
 
     public function testSetParam()
@@ -76,6 +86,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testSetParams()
     {
         $this->di->setParams('EchoService', array('test1'=>'val1', 'test2'=>100));
+        $this->di->setParams('EchoServiceConstruct', array('test100' => 'val100'));
+//        var_dump($this->di->getParams());
 
         $this->assertEquals(
             'val1',
@@ -91,6 +103,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testAdd()
     {
         $this->di->add('EchoService', new EchoService());
+
         $this->assertInstanceOf(
             '\\DIC\\Mocks\\EchoService',
             $this->di->get('EchoService')

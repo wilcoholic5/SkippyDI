@@ -1,13 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cesar
- * Date: 12/8/14
- * Time: 6:25 PM
- */
-
 namespace DIC\Mocks;
-
 
 class EchoServiceConstruct extends Service
 {

@@ -14,6 +14,8 @@ class Container implements ContainerInterface
     protected $params;
 
     /**
+     * set a single parameter
+     *
      * @param $service
      * @param $var
      * @param $val
@@ -25,6 +27,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     * set a services parameters and the parameter's parameters
+     *
      * @param string $service
      * @param array $params
      * @return mixed|void
@@ -49,6 +53,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     * return parameters for given service
+     *
      * @param $service
      * @return array
      */
@@ -62,6 +68,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     * load a new object instantly
+     *
      * @param string $service
      * @param object $val
      * @param $params array
@@ -73,6 +81,8 @@ class Container implements ContainerInterface
     }
 
     /**
+     *
+     *
      * @param $service string
      * @param $params array
      * @return $this object
@@ -88,7 +98,7 @@ class Container implements ContainerInterface
         }
 
         if (!$params) {
-            if (!$this->getServiceParams($service)) {
+            if ($this->getServiceParams($service)) {
                 $params = $this->getServiceParams($service);
             }
         }
