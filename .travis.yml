@@ -7,10 +7,10 @@ php:
   - 5.4
   - hhvm
 
-  before_script:
-      - mkdir -p build/logs
-      - export COVERALLS_SERVICE_NAME=travis-pro
-      - export COVERALLS_REPO_TOKEN=2FJ2ccRuQxyEtOi46NabocjMzVhuwPloi
+before_script:
+    - mkdir -p build/logs
+    - export COVERALLS_SERVICE_NAME=travis-pro
+    - export COVERALLS_REPO_TOKEN=2FJ2ccRuQxyEtOi46NabocjMzVhuwPloi
 
-  script:
-      - phpunit --configuration phpunit.xml.dist
+script:
+    - phpunit --configuration phpunit.xml.dist
