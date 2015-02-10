@@ -89,10 +89,6 @@ class Container implements ContainerInterface
      */
     public function addLazy($service, $params = array())
     {
-        if (!is_string($service)) {
-            throw new \InvalidArgumentException();
-        }
-
         if ($params) {
             $this->setParams($service, $params);
         }
