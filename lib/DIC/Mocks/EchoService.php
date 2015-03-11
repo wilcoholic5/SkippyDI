@@ -12,8 +12,8 @@ class EchoService extends Service
         if (func_get_args()) {
             $args = func_get_args();
             $arr = $args[0];
-            $this->blank = $arr['Blank'];
-            $this->blankTwo = $arr['BlankTwo'];
+            $this->blank = $arr['\\DIC\\Mocks\\Blank'];
+            $this->blankTwo = $arr['\\DIC\\Mocks\\BlankTwo'];
             $this->name = $arr['name'];
         }
     }

@@ -81,7 +81,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     *
+     * Adds the lazy to the array of services
      *
      * @param $service string
      * @param $params array
@@ -98,11 +98,20 @@ class Container implements ContainerInterface
                 $params = $this->getServiceParams($service);
             }
         }
+
         $this->services[$service] = $this->newLazy($service, $params);
 
         return $this->services[$service];
     }
 
+    /**
+     * Actually creates the new lazy. This is a callable that knows how to correctly
+     * instantiate the class.
+     *
+     * @param $service
+     * @param array $params
+     * @return callable
+     */
     public function newLazy($service, $params = array())
     {
         return function() use ($service, $params)
@@ -110,15 +119,19 @@ class Container implements ContainerInterface
             if ($params) {
                 foreach ($params as $param=>$val) {
                     if ($val instanceof \Closure) {
-                        $class = '\\DIC\\Mocks\\'.$param;
-                        $val = new $class($this->params[$service]);
+                        $class = $param;
+                        $val = new $class($this->params[$class]);
                     }
                     $this->setParam($service, $param, $val);
                 }
             }
-            $class = '\\DIC\\Mocks\\'.$service;
-
-            return new $class($this->params[$service]);
+            $reflect = new \ReflectionClass($service);
+            if($reflect->hasMethod("__construct")) {
+                $args = $this->sortArgs($reflect);
+                return $reflect->newInstanceArgs($args);
+            } else {
+                return new $service($this->params[$service]);
+            }
         };
     }
 
@@ -133,8 +146,24 @@ class Container implements ContainerInterface
             //var_dump(array_values($this->getServiceParams($service)));
             $this->services[$service] = call_user_func_array($this->services[$service], array_values($this->getServiceParams($service)));
         }
-
+        
         return $this->services[$service];
+    }
+
+    /**
+     * @param $mock
+     * @return array
+     */
+    public function sortArgs($mock)
+    {
+        $params = $mock->getConstructor()->getParameters();
+        $sortedArgs = array();
+        foreach ($params as $param) {
+            var_dump($this->params);
+            array_push($sortedArgs, $this->getServiceParams($mock->getName())[$param->name]);
+        }
+
+        return $sortedArgs;
     }
 
     /**
@@ -143,7 +172,6 @@ class Container implements ContainerInterface
      */
     public function initDependencies($service, $params)
     {
-
         foreach ($params as $key=>$param) {
             if ($params[$key] instanceof \Closure) {
                 $this->setParam($service, $key, call_user_func_array($params[$key], array_values($this->getServiceParams($key))));
